@@ -6,6 +6,7 @@ import com.example.authenticator_service.entity.User;
 import com.example.authenticator_service.repository.RoleRepository;
 import com.example.authenticator_service.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,17 +31,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO getUserById(Long id) {
         User user = userRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+            .orElseThrow(() -> new LMSServiceException(HttpStatus.NOT_FOUND,"User not found with ID: " + id));
         return convertToDTO(user);
     }
 
     @Override
     public String assignRoleToUser(Long userId, Long roleId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+            .orElseThrow(() -> new LMSServiceException(HttpStatus.NOT_FOUND,"User not found with ID: " + userId));
 
         Role role = roleRepository.findById(roleId)
-            .orElseThrow(() -> new RuntimeException("Role not found with ID: " + roleId));
+            .orElseThrow(() -> new LMSServiceException(HttpStatus.NOT_FOUND,"Role not found with ID: " + roleId));
 
         user.setRole(role);
         userRepository.save(user);

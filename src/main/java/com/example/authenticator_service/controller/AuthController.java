@@ -10,12 +10,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.logging.Logger;
+
 @RestController
 @RequestMapping("/auth-service")
 public class AuthController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    Logger log= Logger.getLogger(AuthController.class.getName());
 
     @Autowired
     private AuthenticationService authenticationService;
@@ -28,6 +32,7 @@ public class AuthController {
 
     @GetMapping(value="/validate")
     public ResponseEntity<AuthResponse> validate(@RequestParam String token) {
+        log.info("Validating token: "+token);
         return authenticationService.validateToken(token);
     }
 
