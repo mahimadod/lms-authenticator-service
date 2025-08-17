@@ -5,6 +5,7 @@ import com.example.authenticator_service.entity.Role;
 import com.example.authenticator_service.entity.User;
 import com.example.authenticator_service.repository.RoleRepository;
 import com.example.authenticator_service.repository.UserRepository;
+import com.example.exception_handler.LMSServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
