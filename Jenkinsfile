@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
         DOCKER_IMAGE = "mahimadod/lms-authenticator-service"
-        JAVA_HOME = tool name: 'JDK17', type: 'jdk'
+        JAVA_HOME = tool name: 'JDK21', type: 'jdk'
         MAVEN_HOME = tool name: 'Maven3.9.9', type: 'maven'
     }
 
