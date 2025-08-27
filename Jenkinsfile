@@ -21,7 +21,7 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/mahimadod/lms-authenticator-service.git'
+                git branch: 'master', url: 'https://github.com/mahimadod/lms-authenticator-service.git'
             }
         }
 
