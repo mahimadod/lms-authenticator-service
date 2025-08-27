@@ -32,9 +32,9 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>com.example</groupId>
+			<groupId>com.github.mahimadod</groupId>
 			<artifactId>exception_handler</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
@@ -116,6 +116,11 @@
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
+		</repository>
+		<repository>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/mahimadod/lms-exception-handler</url>
 		</repository>
 	</repositories>
 </project>
