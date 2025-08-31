@@ -64,7 +64,7 @@ pipeline {
             steps {
                 echo 'Deploying Docker container...'
                 sh """
-                    docker rm -f lms-authenticator || true
+                    docker rm -f authenticator-service || true
                     docker run -d --name lms-authenticator --network lms-network -p 8091:8091 ${DOCKER_IMAGE}:${BUILD_NUMBER}
                 """
             }
