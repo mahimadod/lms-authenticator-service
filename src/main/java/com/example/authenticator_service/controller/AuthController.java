@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.logging.Logger;
 
 @RestController
+@RequestMapping("/auth-service")
 public class AuthController {
 
     @Autowired
