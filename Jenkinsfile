@@ -32,16 +32,16 @@ pipeline {
                         withEnv([
                             "JAVA_HOME=${env.JAVA_HOME}",
                             "MAVEN_HOME=${env.MAVEN_HOME}",
-                            "PATH=${env.JAVA_HOME}/bin:${env.MAVEN_HOME}/bin:$PATH"
+                            "PATH=${env.JAVA_HOME}\\bin;${env.MAVEN_HOME}\\bin;%PATH%"
                         ]) {
-                            sh 'mvn clean install --settings $MAVEN_SETTINGS'
+                            bat 'mvn clean install --settings %MAVEN_SETTINGS%'
                         }
                     }
                 }
             }
             post {
                 always {
-                    junit '**/target/surefire-reports/*.xml'
+                    junit '**/target/surefire-reports/surefire-reports/*.xml'
                     archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
                 }
             }
