@@ -49,21 +49,34 @@ pipeline {
             }
         }
 
-        stage('Docker Build & Push') {
-            when {
-                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' } // ✅ Skip if previous failed
-            }
-            steps {
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
-                        def image = docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
-                        image.push()
-                        image.tag('latest')
-                        image.push('latest')
+                stage('Docker Build & Push') {
+                    when {
+                        expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
+                    }
+                    steps {
+                        script {
+                            // 🔍 Echo which credential is being used
+                            echo "🧪 Using DockerHub credentials ID: dockerhub-credentials"
+
+                            // 🔐 Test docker login manually before using docker.withRegistry
+                            withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                                echo "🧪 Attempting manual docker login for user: ${DOCKER_USER}"
+                                bat """
+                                    echo Logging in to DockerHub as %DOCKER_USER%
+                                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                                """
+                            }
+
+                            // ✅ Now proceed with Docker build and push if login worked
+                            docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
+                                def image = docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
+                                image.push()
+                                image.tag('latest')
+                                image.push('latest')
+                            }
+                        }
                     }
                 }
-            }
-        }
 
         stage('Deploy') {
             when {
