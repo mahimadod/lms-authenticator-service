@@ -34,7 +34,7 @@ pipeline {
                             "MAVEN_HOME=${env.MAVEN_HOME}",
                             "PATH=${env.JAVA_HOME}/bin:${env.MAVEN_HOME}/bin:$PATH"
                         ]) {
-                            sh 'mvn clean install --settings $MAVEN_SETTINGS'
+                            bat 'mvn clean install --settings $MAVEN_SETTINGS'
                         }
                     }
                 }
