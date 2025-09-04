@@ -32,8 +32,10 @@ pipeline {
                         withEnv([
                             "JAVA_HOME=${env.JAVA_HOME}",
                             "MAVEN_HOME=${env.MAVEN_HOME}",
-                            "PATH=${env.JAVA_HOME}\\bin;${env.MAVEN_HOME}\\bin;%PATH%"
+                            "PATH=${env.JAVA_HOME}\\bin;${env.MAVEN_HOME}\\bin;%PATH%" // ✅ CHANGED FOR WINDOWS
                         ]) {
+                            // ❌ Old (for Unix): sh 'mvn clean install --settings $MAVEN_SETTINGS'
+                            // ✅ NEW (for Windows):
                             bat 'mvn clean install --settings %MAVEN_SETTINGS%'
                         }
                     }
@@ -41,13 +43,17 @@ pipeline {
             }
             post {
                 always {
-                    junit '**/target/surefire-reports/surefire-reports/*.xml'
+                    // ✅ MAKE SURE THIS PATTERN MATCHES YOUR FILES!
+                    junit '**/target/surefire-reports/*.xml'
                     archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
                 }
             }
         }
 
         stage('Docker Build & Push') {
+            when {
+                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' } // ✅ Skip if previous failed
+            }
             steps {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
@@ -61,10 +67,13 @@ pipeline {
         }
 
         stage('Deploy') {
+            when {
+                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' } // ✅ Skip if previous failed
+            }
             steps {
                 echo 'Deploying Docker container...'
-                sh """
-                    docker rm -f lms-authenticator || true
+                bat """
+                    docker rm -f lms-authenticator || exit 0
                     docker run -d --name lms-authenticator --network lms-network -p 8091:8091 ${DOCKER_IMAGE}:${BUILD_NUMBER}
                 """
             }
