@@ -29,15 +29,14 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                     configFileProvider([configFile(fileId: 'github-settings', variable: 'MAVEN_SETTINGS')]) {
-                        withEnv([
-                            "JAVA_HOME=${env.JAVA_HOME}",
-                            "MAVEN_HOME=${env.MAVEN_HOME}",
-                            "PATH=${env.JAVA_HOME}\\bin;${env.MAVEN_HOME}\\bin;%PATH%" // ✅ CHANGED FOR WINDOWS
-                        ]) {
-                            // ❌ Old (for Unix): sh 'mvn clean install --settings $MAVEN_SETTINGS'
-                            // ✅ NEW (for Windows):
-                            bat 'mvn clean install --settings %MAVEN_SETTINGS%'
-                        }
+                        bat """
+                            echo JAVA_HOME=%JAVA_HOME%
+                            java -version
+                            set JAVA_HOME=${env.JAVA_HOME}
+                            set MAVEN_HOME=${env.MAVEN_HOME}
+                            set PATH=%JAVA_HOME%\\bin;%MAVEN_HOME%\\bin;%PATH%
+                            mvn clean install --settings %MAVEN_SETTINGS%
+                        """
                     }
                 }
             }
