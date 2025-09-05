@@ -29,14 +29,15 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
                     configFileProvider([configFile(fileId: 'github-settings', variable: 'MAVEN_SETTINGS')]) {
-                        bat """
-                            echo JAVA_HOME=%JAVA_HOME%
-                            java -version
-                            set JAVA_HOME=${env.JAVA_HOME}
-                            set MAVEN_HOME=${env.MAVEN_HOME}
-                            set PATH=%JAVA_HOME%\\bin;%MAVEN_HOME%\\bin;%PATH%
-                            mvn clean install --settings %MAVEN_SETTINGS%
-                        """
+                        withEnv([
+                            "JAVA_HOME=${env.JAVA_HOME}",
+                            "MAVEN_HOME=${env.MAVEN_HOME}",
+                            "PATH=${env.JAVA_HOME}\\bin;${env.MAVEN_HOME}\\bin;%PATH%" // ✅ CHANGED FOR WINDOWS
+                        ]) {
+                            // ❌ Old (for Unix): sh 'mvn clean install --settings $MAVEN_SETTINGS'
+                            // ✅ NEW (for Windows):
+                            bat 'mvn clean install --settings %MAVEN_SETTINGS%'
+                        }
                     }
                 }
             }
@@ -49,34 +50,21 @@ pipeline {
             }
         }
 
-                stage('Docker Build & Push') {
-                    when {
-                        expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
-                    }
-                    steps {
-                        script {
-                            // 🔍 Echo which credential is being used
-                            echo "🧪 Using DockerHub credentials ID: dockerhub-credentials"
-
-                            // 🔐 Test docker login manually before using docker.withRegistry
-                            withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                                echo "🧪 Attempting manual docker login for user: ${DOCKER_USER}"
-                                bat """
-                                    echo Logging in to DockerHub as %DOCKER_USER%
-                                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
-                                """
-                            }
-
-                            // ✅ Now proceed with Docker build and push if login worked
-                            docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
-                                def image = docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
-                                image.push()
-                                image.tag('latest')
-                                image.push('latest')
-                            }
-                        }
+        stage('Docker Build & Push') {
+            when {
+                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' } // ✅ Skip if previous failed
+            }
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
+                        def image = docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
+                        image.push()
+                        image.tag('latest')
+                        image.push('latest')
                     }
                 }
+            }
+        }
 
         stage('Deploy') {
             when {
