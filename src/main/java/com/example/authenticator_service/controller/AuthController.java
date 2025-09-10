@@ -30,6 +30,7 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
         MDC.put("service", "Auth-service");
         System.out.println("CALLING AGAIN");
+        log.info("Response generated");
         return authenticationService.authenticateLogin(authRequest);
     }
 
