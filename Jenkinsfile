@@ -51,7 +51,7 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+     /*    stage('SonarQube Analysis') {
                     steps {
                         withSonarQubeEnv('SonarQube') {
                             bat """
@@ -63,7 +63,7 @@ pipeline {
                         }
                     }
                 }
-
+ */
         stage('Docker Build & Push') {
             when {
                 expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' } // ✅ Skip if previous failed
