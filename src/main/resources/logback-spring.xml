@@ -12,7 +12,6 @@
                 <stackTrace />
                 <context />
                 <mdc />
-                <customFields>{"service":"authenticator-service"}</customFields>
             </providers>
         </encoder>
     </appender>
